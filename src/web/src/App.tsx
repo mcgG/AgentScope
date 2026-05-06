@@ -1,11 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { AgentEvent, AgentSession } from "@shared/events.ts";
+import type { AgentEvent, AgentKind, AgentSession } from "@shared/events.ts";
 import { fetchEvents, fetchSessions } from "./api.ts";
 import { SessionSidebar } from "./components/SessionSidebar.tsx";
 import { SessionHeader } from "./components/SessionHeader.tsx";
 import { Timeline } from "./components/Timeline.tsx";
+import { WorkflowView } from "./components/WorkflowView.tsx";
 
 type EventsBySession = Record<string, AgentEvent[]>;
+type SessionFilter = AgentKind | "all";
+type ViewMode = "timeline" | "workflow";
 
 function upsertSession(
   list: AgentSession[],
@@ -40,8 +43,9 @@ export default function App() {
   const [sessions, setSessions] = useState<AgentSession[]>([]);
   const [eventsBySession, setEventsBySession] = useState<EventsBySession>({});
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [sessionFilter, setSessionFilter] = useState<SessionFilter>("all");
+  const [viewMode, setViewMode] = useState<ViewMode>("timeline");
   const [connected, setConnected] = useState(false);
-  const [autoScroll, setAutoScroll] = useState(true);
   const userSelectedRef = useRef(false);
 
   // Initial sessions load
@@ -120,16 +124,59 @@ export default function App() {
     setSelectedId(id);
   }, []);
 
+  const visibleSessions = useMemo(
+    () =>
+      sessionFilter === "all"
+        ? sessions
+        : sessions.filter((s) => s.agent === sessionFilter),
+    [sessionFilter, sessions],
+  );
+
+  useEffect(() => {
+    if (visibleSessions.length === 0) {
+      setSelectedId(null);
+      return;
+    }
+    if (!selectedId || !visibleSessions.some((s) => s.id === selectedId)) {
+      setSelectedId(visibleSessions[0]!.id);
+    }
+  }, [selectedId, visibleSessions]);
+
   const selectedSession = useMemo(
-    () => sessions.find((s) => s.id === selectedId) ?? null,
-    [sessions, selectedId],
+    () => visibleSessions.find((s) => s.id === selectedId) ?? null,
+    [selectedId, visibleSessions],
   );
   const selectedEvents = selectedId ? eventsBySession[selectedId] ?? [] : [];
+
+  useEffect(() => {
+    if (!selectedId || viewMode !== "workflow" || selectedSession?.agent !== "codex") {
+      return;
+    }
+    let cancelled = false;
+    const refresh = () => {
+      fetchEvents(selectedId)
+        .then((events) => {
+          if (!cancelled) {
+            setEventsBySession((prev) => ({ ...prev, [selectedId]: events }));
+          }
+        })
+        .catch(() => {});
+    };
+    const timer = window.setInterval(refresh, 2_000);
+    refresh();
+    return () => {
+      cancelled = true;
+      window.clearInterval(timer);
+    };
+  }, [selectedId, selectedSession?.agent, viewMode]);
 
   return (
     <div className="flex h-full">
       <SessionSidebar
-        sessions={sessions}
+        sessions={visibleSessions}
+        allSessions={sessions}
+        filter={sessionFilter}
+        onFilterChange={setSessionFilter}
         selectedId={selectedId}
         onSelect={selectSession}
         connected={connected}
@@ -139,20 +186,14 @@ export default function App() {
           <>
             <SessionHeader session={selectedSession} />
             <div className="flex items-center gap-4 px-6 py-2 border-b border-zinc-800/60 text-[11px] text-zinc-500">
-              <label className="flex items-center gap-1.5 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={autoScroll}
-                  onChange={(e) => setAutoScroll(e.target.checked)}
-                  className="size-3 accent-blue-500"
-                />
-                Auto-scroll
-              </label>
+              <ViewToggle mode={viewMode} onChange={setViewMode} />
               <span className="ml-auto font-mono">id: {selectedSession.id.slice(0, 8)}</span>
             </div>
-            <div className="flex-1 overflow-auto">
-              <Timeline events={selectedEvents} autoScroll={autoScroll} />
-            </div>
+            {viewMode === "timeline" ? (
+              <Timeline events={selectedEvents} />
+            ) : (
+              <WorkflowView events={selectedEvents} />
+            )}
           </>
         ) : (
           <div className="flex-1 flex items-center justify-center text-zinc-500">
@@ -165,6 +206,41 @@ export default function App() {
           </div>
         )}
       </main>
+    </div>
+  );
+}
+
+function ViewToggle({
+  mode,
+  onChange,
+}: {
+  mode: ViewMode;
+  onChange: (mode: ViewMode) => void;
+}) {
+  const options: Array<{ key: ViewMode; label: string }> = [
+    { key: "timeline", label: "Timeline" },
+    { key: "workflow", label: "Workflow" },
+  ];
+  return (
+    <div className="inline-flex items-center rounded-md border border-zinc-800 bg-zinc-900/60 p-0.5">
+      {options.map((option) => {
+        const active = mode === option.key;
+        return (
+          <button
+            key={option.key}
+            type="button"
+            onClick={() => onChange(option.key)}
+            className={
+              "rounded px-2.5 py-0.5 text-[11px] font-medium transition-colors " +
+              (active
+                ? "bg-zinc-700/70 text-zinc-100"
+                : "text-zinc-400 hover:text-zinc-200")
+            }
+          >
+            {option.label}
+          </button>
+        );
+      })}
     </div>
   );
 }

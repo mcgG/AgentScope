@@ -21,10 +21,12 @@ export type AgentToolStatus =
   | "failed"
   | "unknown";
 
+export type AgentKind = "claude-code" | "codex";
+
 export type AgentSession = {
   id: string;
   title?: string;
-  agent: "claude-code";
+  agent: AgentKind;
   status: AgentSessionStatus;
   cwd?: string;
   transcriptPath?: string;
@@ -41,7 +43,7 @@ export type AgentEvent = {
   id: string;
   sessionId: string;
   timestamp: string;
-  source: "claude-code";
+  source: AgentKind;
   hookEventName: string;
   eventType: AgentEventType;
   toolUseId?: string;

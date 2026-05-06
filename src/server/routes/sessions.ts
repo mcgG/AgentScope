@@ -24,7 +24,7 @@ export async function sessionRoutes(app: FastifyInstance) {
       if (!session) {
         return reply.status(404).send({ ok: false, error: "Not found" });
       }
-      return { events: sessionStore.getEvents(req.params.sessionId) };
+      return { events: await sessionStore.getEvents(req.params.sessionId) };
     },
   );
 }

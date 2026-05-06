@@ -38,6 +38,7 @@ if (existsSync(distDir)) {
 app.listen({ port: PORT, host: HOST }).then(() => {
   console.log(`\n🛰  AgentScope on http://${HOST}:${PORT}`);
   console.log(`    hook endpoint:  POST /api/hooks/claude`);
+  console.log(`    hook endpoint:  POST /api/hooks/codex`);
   console.log(`    sessions API:   GET  /api/sessions`);
   console.log(`    event stream:   GET  /api/events/stream`);
   if (existsSync(distDir)) {

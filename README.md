@@ -73,11 +73,78 @@ config; the minimum is:
 Add `SessionStart`, `UserPromptSubmit`, `Stop`, `Notification`, `SubagentStop`,
 and `PreCompact` for fuller coverage — see the example file.
 
+## Wire up Codex hooks
+
+For Codex, post to the Codex endpoint so sessions are grouped under the Codex
+tab:
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "curl -s -X POST http://127.0.0.1:4936/api/hooks/codex -H 'Content-Type: application/json' -d @- >/dev/null || true"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "curl -s -X POST http://127.0.0.1:4936/api/hooks/codex -H 'Content-Type: application/json' -d @- >/dev/null || true"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "curl -s -X POST http://127.0.0.1:4936/api/hooks/codex -H 'Content-Type: application/json' -d @- >/dev/null || true"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "curl -s -X POST http://127.0.0.1:4936/api/hooks/codex -H 'Content-Type: application/json' -d @- >/dev/null || true"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "curl -s -X POST http://127.0.0.1:4936/api/hooks/codex -H 'Content-Type: application/json' -d @- >/dev/null || true"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+The `>/dev/null || true` suffix keeps the observer hook quiet and non-blocking
+inside Codex while AgentScope is closed or restarting.
+
 ## Architecture
 
 ```
-Claude Code hook
-  └─> POST /api/hooks/claude
+Claude Code / Codex hook
+  └─> POST /api/hooks/claude or /api/hooks/codex
         └─> normalize (eventNormalizer.ts)
               └─> upsert in SessionStore
                     ├─> append .agentscope/sessions/<id>.events.jsonl
