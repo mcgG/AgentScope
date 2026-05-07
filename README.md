@@ -73,11 +73,52 @@ config; the minimum is:
 Add `SessionStart`, `UserPromptSubmit`, `Stop`, `Notification`, `SubagentStop`,
 and `PreCompact` for fuller coverage — see the example file.
 
+## Wire up Codex hooks
+
+OpenAI's Codex CLI uses the same hook concept but configures it via TOML in
+`~/.codex/config.toml`. Point its hooks at `/api/hooks/codex` and AgentScope
+will tag the session as `codex`:
+
+```toml
+[[hooks.PreToolUse]]
+matcher = ".*"
+[[hooks.PreToolUse.hooks]]
+type = "command"
+command = "curl -s -X POST http://127.0.0.1:4936/api/hooks/codex -H 'Content-Type: application/json' -d @-"
+
+[[hooks.PostToolUse]]
+matcher = ".*"
+[[hooks.PostToolUse.hooks]]
+type = "command"
+command = "curl -s -X POST http://127.0.0.1:4936/api/hooks/codex -H 'Content-Type: application/json' -d @-"
+
+[[hooks.SessionStart]]
+matcher = ".*"
+[[hooks.SessionStart.hooks]]
+type = "command"
+command = "curl -s -X POST http://127.0.0.1:4936/api/hooks/codex -H 'Content-Type: application/json' -d @-"
+
+[[hooks.UserPromptSubmit]]
+matcher = ".*"
+[[hooks.UserPromptSubmit.hooks]]
+type = "command"
+command = "curl -s -X POST http://127.0.0.1:4936/api/hooks/codex -H 'Content-Type: application/json' -d @-"
+
+[[hooks.Stop]]
+matcher = ".*"
+[[hooks.Stop.hooks]]
+type = "command"
+command = "curl -s -X POST http://127.0.0.1:4936/api/hooks/codex -H 'Content-Type: application/json' -d @-"
+```
+
+`PermissionRequest` is also supported if you want to surface Codex permission
+prompts in the timeline.
+
 ## Architecture
 
 ```
-Claude Code hook
-  └─> POST /api/hooks/claude
+Claude Code hook ──> POST /api/hooks/claude  ┐
+Codex CLI hook   ──> POST /api/hooks/codex   ┘
         └─> normalize (eventNormalizer.ts)
               └─> upsert in SessionStore
                     ├─> append .agentscope/sessions/<id>.events.jsonl

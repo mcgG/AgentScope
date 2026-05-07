@@ -1,9 +1,23 @@
 import { EventEmitter } from "node:events";
 import type { AgentEvent, AgentSession } from "../../shared/events.ts";
 
+export type UsageDelta = {
+  sessionId: string;
+  totals: {
+    input: number;
+    output: number;
+    cacheRead: number;
+    cacheWrite: number;
+    cost: number;
+    turns: number;
+  };
+  lastTs?: string;
+};
+
 type Events = {
   event_upserted: [AgentEvent];
   session_upserted: [AgentSession];
+  usage_upserted: [UsageDelta];
 };
 
 class TypedEmitter extends EventEmitter {

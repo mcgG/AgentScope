@@ -1,5 +1,5 @@
 import type { FastifyInstance } from "fastify";
-import { eventBus } from "../services/eventBus.ts";
+import { eventBus, type UsageDelta } from "../services/eventBus.ts";
 import type { AgentEvent, AgentSession } from "../../shared/events.ts";
 
 export async function streamRoutes(app: FastifyInstance) {
@@ -21,9 +21,11 @@ export async function streamRoutes(app: FastifyInstance) {
     const onEvent = (event: AgentEvent) => send("event_upserted", event);
     const onSession = (session: AgentSession) =>
       send("session_upserted", session);
+    const onUsage = (delta: UsageDelta) => send("usage_upserted", delta);
 
     eventBus.on("event_upserted", onEvent);
     eventBus.on("session_upserted", onSession);
+    eventBus.on("usage_upserted", onUsage);
 
     const heartbeat = setInterval(() => {
       reply.raw.write(`: ping\n\n`);
@@ -33,6 +35,7 @@ export async function streamRoutes(app: FastifyInstance) {
       clearInterval(heartbeat);
       eventBus.off("event_upserted", onEvent);
       eventBus.off("session_upserted", onSession);
+      eventBus.off("usage_upserted", onUsage);
     });
   });
 }

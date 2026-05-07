@@ -3,6 +3,7 @@ import { mkdir, readFile, readdir, writeFile, appendFile } from "node:fs/promise
 import { join, resolve } from "node:path";
 import type {
   AgentEvent,
+  AgentKind,
   AgentSession,
   AgentSessionStatus,
 } from "../../shared/events.ts";
@@ -73,11 +74,14 @@ class SessionStore {
     }
   }
 
-  async ingest(raw: unknown): Promise<IngestResult> {
-    const normalized = normalizeHookPayload(raw);
+  async ingest(
+    raw: unknown,
+    agent: AgentKind = "claude-code",
+  ): Promise<IngestResult> {
+    const normalized = normalizeHookPayload(raw, agent);
     const sessionId = normalized.sessionId;
 
-    const session = this.upsertSession(sessionId, normalized);
+    const session = this.upsertSession(sessionId, normalized, agent);
 
     let event: AgentEvent;
     const toolUseId = normalized.toolUseId;
@@ -162,13 +166,14 @@ class SessionStore {
   private upsertSession(
     sessionId: string,
     normalized: NormalizedHookEvent,
+    agent: AgentKind = "claude-code",
   ): AgentSession {
     const now = normalized.timestamp;
     let session = this.sessions.get(sessionId);
     if (!session) {
       session = {
         id: sessionId,
-        agent: "claude-code",
+        agent,
         status: "running",
         cwd: normalized.cwd,
         startedAt: now,
@@ -294,7 +299,8 @@ class SessionStore {
 
 function readTranscriptPath(raw: unknown): string | undefined {
   if (raw && typeof raw === "object") {
-    const v = (raw as Record<string, unknown>).transcript_path;
+    const r = raw as Record<string, unknown>;
+    const v = r.transcript_path ?? r.transcriptPath;
     if (typeof v === "string") return v;
   }
   return undefined;
@@ -310,7 +316,8 @@ function readSessionSource(raw: unknown): string | undefined {
 
 function readLastAssistantMessage(raw: unknown): string | undefined {
   if (raw && typeof raw === "object") {
-    const v = (raw as Record<string, unknown>).last_assistant_message;
+    const r = raw as Record<string, unknown>;
+    const v = r.last_assistant_message ?? r.lastAssistantMessage;
     if (typeof v === "string") return v;
   }
   return undefined;

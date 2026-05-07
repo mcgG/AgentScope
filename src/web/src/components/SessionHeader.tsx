@@ -1,15 +1,25 @@
 import type { AgentSession } from "@shared/events.ts";
 import { StatusBadge } from "./ui/StatusBadge.tsx";
-import { formatRelative } from "../utils.ts";
+import { formatRelative, classNames } from "../utils.ts";
+import { agentMeta, type AgentKind } from "../agentMeta.ts";
 
 export function SessionHeader({ session }: { session: AgentSession }) {
+  const meta = agentMeta(session.agent as AgentKind);
   return (
     <header className="border-b border-zinc-800/80 px-6 py-4 bg-zinc-950/50">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-3 mb-1">
-            <span className="text-[10px] uppercase tracking-widest text-zinc-500">
-              Claude Code
+            <span
+              className={classNames(
+                "inline-flex items-center gap-1.5 text-[10px] uppercase tracking-widest",
+                meta.textClass,
+              )}
+            >
+              <span
+                className={classNames("size-1.5 rounded-full", meta.dotClass)}
+              />
+              {meta.label}
             </span>
             <StatusBadge status={session.status} />
           </div>

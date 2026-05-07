@@ -33,3 +33,631 @@ body {
 pre {
   font-variant-ligatures: none;
 }
+
+@keyframes spawn-in {
+  0% {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.animate-spawn-in {
+  animation: spawn-in 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes stroke-draw {
+  0% {
+    stroke-dasharray: 0 1000;
+  }
+  100% {
+    stroke-dasharray: 1000 0;
+  }
+}
+.animate-stroke-draw {
+  stroke-dasharray: 1000 0;
+  animation: stroke-draw 600ms ease-out both;
+}
+
+@keyframes stroke-flow {
+  0% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: -36;
+  }
+}
+.animate-stroke-flow {
+  animation: stroke-flow 1.4s linear infinite;
+}
+
+/* Office floor: subtle grid + warm tint. */
+.office-floor {
+  background-color: #0c0a09;
+  background-image:
+    radial-gradient(ellipse at top, rgba(251, 191, 36, 0.04), transparent 60%),
+    linear-gradient(rgba(82, 82, 91, 0.18) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(82, 82, 91, 0.18) 1px, transparent 1px);
+  background-size: auto, 32px 32px, 32px 32px;
+}
+
+@keyframes character-breathe {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-2px) scale(1.02); }
+}
+.animate-character-breathe {
+  animation: character-breathe 3.2s ease-in-out infinite;
+}
+
+@keyframes character-work {
+  0%, 100% { transform: translateY(0) rotate(-3deg); }
+  25% { transform: translateY(-3px) rotate(3deg); }
+  50% { transform: translateY(0) rotate(-2deg); }
+  75% { transform: translateY(-2px) rotate(2deg); }
+}
+.animate-character-work {
+  animation: character-work 0.9s ease-in-out infinite;
+}
+
+@keyframes character-busy {
+  0% { transform: translateY(0) rotate(-8deg) scale(1.05); }
+  20% { transform: translateY(-6px) rotate(8deg) scale(1.05); }
+  40% { transform: translateY(-1px) rotate(-6deg) scale(1.04); }
+  60% { transform: translateY(-5px) rotate(6deg) scale(1.06); }
+  80% { transform: translateY(0) rotate(-4deg) scale(1.05); }
+  100% { transform: translateY(-2px) rotate(4deg) scale(1.05); }
+}
+.animate-character-busy {
+  animation: character-busy 0.45s ease-in-out infinite;
+}
+
+@keyframes character-thinking {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  25% { transform: translateY(-1px) rotate(-2deg); }
+  50% { transform: translateY(0) rotate(0); }
+  75% { transform: translateY(-1px) rotate(2deg); }
+}
+.animate-character-thinking {
+  animation: character-thinking 2.4s ease-in-out infinite;
+}
+
+@keyframes character-sad {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  50% { transform: translateY(2px) rotate(-1deg); }
+}
+.animate-character-sad {
+  animation: character-sad 4s ease-in-out infinite;
+  filter: grayscale(0.4);
+}
+
+@keyframes hat-bob {
+  0%, 100% { transform: translateX(-50%) translateY(0) rotate(-4deg); }
+  50% { transform: translateX(-50%) translateY(-4px) rotate(4deg); }
+}
+.animate-hat-bob {
+  animation: hat-bob 0.9s ease-in-out infinite;
+}
+
+@keyframes hat-fly {
+  0% { transform: translateX(-50%) translateY(0) rotate(0); top: 0; }
+  25% { transform: translateX(-50%) translateY(-12px) rotate(-30deg); top: 0; }
+  50% { transform: translateX(-50%) translateY(-8px) rotate(20deg); top: 0; }
+  75% { transform: translateX(-50%) translateY(-12px) rotate(-15deg); top: 0; }
+  100% { transform: translateX(-50%) translateY(-2px) rotate(8deg); top: 0; }
+}
+.animate-hat-fly {
+  animation: hat-fly 0.5s ease-in-out infinite;
+  top: 0.25rem;
+}
+
+@keyframes hat-tilt {
+  0%, 100% { transform: translateX(-50%) translateY(0) rotate(-12deg); }
+  50% { transform: translateX(-50%) translateY(-1px) rotate(8deg); }
+}
+.animate-hat-tilt {
+  animation: hat-tilt 3s ease-in-out infinite;
+  top: 0.5rem;
+}
+
+@keyframes desk-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-1px); }
+  75% { transform: translateX(1px); }
+}
+.animate-desk-shake {
+  animation: desk-shake 0.18s ease-in-out infinite;
+}
+
+@keyframes particle-fly {
+  0% {
+    transform: translate(-50%, -50%) scale(0.6);
+    opacity: 0;
+  }
+  20% { opacity: 1; }
+  100% {
+    transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes cloud-drift {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(-2px); }
+}
+.animate-cloud-drift {
+  animation: cloud-drift 3.5s ease-in-out infinite;
+}
+
+@keyframes pop-bubble {
+  0% { opacity: 0; transform: translateX(-50%) translateY(8px) scale(0.6); }
+  20% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1.1); }
+  40% { transform: translateX(-50%) translateY(0) scale(1); }
+  100% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+}
+.animate-pop-bubble {
+  animation: pop-bubble 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes sparkle {
+  0% { opacity: 0; transform: scale(0.5) rotate(0deg); }
+  40% { opacity: 1; transform: scale(1.3) rotate(20deg); }
+  100% { opacity: 0; transform: scale(1) rotate(40deg); }
+}
+.animate-sparkle {
+  animation: sparkle 1.4s ease-out infinite;
+}
+
+/* ----- RPG Scene styles ---------------------------------------------- */
+
+/* RPG world-map background: layered SVG silhouettes (mountains, forest,
+ * castle, river) drawn entirely from data URIs so we don't need any binary
+ * assets. The composition is sky → distant peaks → forest → river → grass. */
+.rpg-field {
+  background-color: #050a0e;
+  background-image:
+    /* Far stars / faint clouds */
+    radial-gradient(2px 1px at 14% 10%, rgba(255, 255, 255, 0.65), transparent 60%),
+    radial-gradient(1.5px 1px at 32% 6%, rgba(255, 255, 255, 0.5), transparent 60%),
+    radial-gradient(1px 1px at 65% 8%, rgba(255, 255, 255, 0.55), transparent 60%),
+    radial-gradient(1.5px 1px at 78% 13%, rgba(255, 255, 255, 0.6), transparent 60%),
+    radial-gradient(1px 1px at 88% 5%, rgba(255, 255, 255, 0.45), transparent 60%),
+    /* Drifting moon glow */
+    radial-gradient(
+      ellipse 12% 18% at 82% 14%,
+      rgba(252, 233, 178, 0.45),
+      transparent 70%
+    ),
+    /* Foreground forest silhouette (bottom 28%) */
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 220' preserveAspectRatio='none'><path fill='%23021607' d='M0 220 V120 L40 100 L60 120 L90 90 L120 115 L150 95 L185 120 L215 90 L250 115 L290 80 L325 110 L360 95 L400 115 L440 85 L470 110 L510 90 L545 115 L585 95 L625 115 L665 80 L705 110 L745 95 L785 120 L820 95 L860 115 L900 95 L940 115 L975 95 L1015 115 L1055 100 L1095 120 L1140 95 L1180 115 L1200 105 V220 Z'/></svg>"),
+    /* Mid-ground hills */
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 220' preserveAspectRatio='none'><path fill='%230d3320' d='M0 220 V155 Q60 130 130 150 T280 145 T420 155 T570 140 T720 150 T880 138 T1050 152 T1200 148 V220 Z'/></svg>"),
+    /* Distant mountain range with snowy peaks */
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 220' preserveAspectRatio='none'><polygon fill='%23172b3b' points='0,220 90,140 145,165 220,110 295,150 360,120 430,165 500,135 580,170 660,120 740,160 820,128 900,170 980,140 1060,168 1130,130 1200,165 1200,220'/><polygon fill='%231f3a52' opacity='0.55' points='0,220 90,140 100,150 145,165 155,170 220,110 235,125 295,150 305,156 360,120 372,135 430,165 442,168 500,135 510,143 580,170 590,176 660,120 672,135 740,160 750,166 820,128 830,140 900,170 910,176 980,140 992,150 1060,168 1072,176 1130,130 1142,148 1200,165 1200,220'/><polygon fill='%23ffffff' opacity='0.6' points='90,140 95,148 87,150 82,142'/><polygon fill='%23ffffff' opacity='0.55' points='220,110 226,118 215,121 211,114'/><polygon fill='%23ffffff' opacity='0.55' points='430,165 0,0 0,0 430,165'/><polygon fill='%23ffffff' opacity='0.55' points='660,120 668,128 654,131 651,124'/></svg>"),
+    /* Distant castle silhouette on a bluff */
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 240' preserveAspectRatio='none'><g transform='translate(940 138)' fill='%230f1b29'><rect x='0' y='14' width='44' height='28'/><rect x='44' y='6' width='10' height='36'/><rect x='54' y='14' width='30' height='28'/><polygon points='0,14 6,4 12,14'/><polygon points='12,14 18,2 24,14'/><polygon points='30,14 36,4 42,14'/><polygon points='54,14 60,4 66,14'/><polygon points='66,14 72,2 78,14'/><rect x='20' y='24' width='4' height='6' fill='%23facc15'/><rect x='62' y='24' width='4' height='6' fill='%23facc15'/></g></svg>"),
+    /* River reflection band */
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 80' preserveAspectRatio='none'><defs><linearGradient id='r' x1='0' x2='0' y1='0' y2='1'><stop offset='0' stop-color='%23173a55'/><stop offset='1' stop-color='%231a2c4d'/></linearGradient></defs><path fill='url(%23r)' d='M0 30 Q300 10 600 28 T1200 30 V80 H0 Z' opacity='0.85'/></svg>"),
+    /* Sky → horizon → ground gradient */
+    linear-gradient(
+      to bottom,
+      #050a0e 0%,
+      #0b1d34 18%,
+      #1d3a54 32%,
+      #2c5d4f 45%,
+      #1d4a2b 60%,
+      #143a23 100%
+    );
+  background-position:
+    /* stars */
+    0 0, 0 0, 0 0, 0 0, 0 0,
+    /* moon */
+    0 0,
+    /* forest, hills, mountain, castle, river, sky */
+    50% 100%,
+    50% 75%,
+    50% 55%,
+    50% 50%,
+    50% 60%,
+    0 0;
+  background-repeat: no-repeat;
+  background-size:
+    100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%,
+    100% 100%,
+    100% 28%,
+    100% 22%,
+    100% 35%,
+    100% 30%,
+    100% 12%,
+    100% 100%;
+  image-rendering: pixelated;
+  position: relative;
+}
+
+/* Subtle floating fog band over the river. */
+.rpg-field::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    /* Vignette for depth */
+    radial-gradient(
+      ellipse 90% 65% at 50% 100%,
+      rgba(0, 0, 0, 0.55) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 80% 40% at 50% 0%,
+      rgba(0, 0, 0, 0.55) 0%,
+      transparent 70%
+    ),
+    /* Mist over the river */
+    linear-gradient(
+      to bottom,
+      transparent 55%,
+      rgba(186, 230, 253, 0.05) 60%,
+      rgba(186, 230, 253, 0.08) 64%,
+      transparent 70%
+    );
+}
+
+/* Coin floats from character to HUD: starts large, shrinks, arcs upward. */
+@keyframes rpg-coin-fly {
+  0% {
+    transform: translate(-50%, -50%) scale(1.2) rotate(0deg);
+    opacity: 0.95;
+  }
+  20% {
+    transform: translate(calc(-50% + 8px), calc(-50% - 18px)) scale(1) rotate(45deg);
+    opacity: 1;
+  }
+  100% {
+    transform:
+      translate(
+        calc(-50% + var(--coin-dx, 200px)),
+        calc(-50% + var(--coin-dy, -200px))
+      )
+      scale(0.55)
+      rotate(720deg);
+    opacity: 0;
+  }
+}
+
+/* Idle bob — gentle sine */
+@keyframes rpg-idle-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+.rpg-anim-idle {
+  animation: rpg-idle-bob 2.6s ease-in-out infinite;
+}
+
+/* Busy bob — quicker + slight lean for swing/cast */
+@keyframes rpg-busy-bob {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  25% { transform: translateY(-5px) rotate(3deg); }
+  50% { transform: translateY(-1px) rotate(-3deg); }
+  75% { transform: translateY(-4px) rotate(2deg); }
+}
+.rpg-anim-busy {
+  animation: rpg-busy-bob 0.45s ease-in-out infinite;
+}
+
+/* Thinking — head tilt and slow drift */
+@keyframes rpg-thinking {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  50% { transform: translateY(-1px) rotate(-3deg); }
+}
+.rpg-anim-thinking {
+  animation: rpg-thinking 2.2s ease-in-out infinite;
+}
+
+/* Failed — slumped slow tilt */
+@keyframes rpg-failed {
+  0%, 100% { transform: translateY(2px) rotate(-6deg); }
+  50% { transform: translateY(3px) rotate(-8deg); }
+}
+.rpg-anim-failed {
+  animation: rpg-failed 3.5s ease-in-out infinite;
+}
+
+/* Weapon swing for warriors (rotated around handle) */
+@keyframes rpg-weapon-swing {
+  0%, 100% { transform: rotate(-30deg); }
+  50% { transform: rotate(60deg); }
+}
+.rpg-weapon-swing {
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  animation: rpg-weapon-swing 0.4s ease-in-out infinite;
+}
+
+/* Spell cast — pulse glow */
+@keyframes rpg-spell-pulse {
+  0%, 100% { transform: scale(0.85); opacity: 0.55; }
+  50% { transform: scale(1.25); opacity: 1; }
+}
+.rpg-spell-pulse {
+  transform-box: fill-box;
+  transform-origin: center center;
+  animation: rpg-spell-pulse 0.55s ease-in-out infinite;
+}
+
+/* Bow draw nudge */
+@keyframes rpg-bow-draw {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(-2px); }
+}
+.rpg-bow-draw {
+  transform-box: fill-box;
+  animation: rpg-bow-draw 0.5s ease-in-out infinite;
+}
+
+/* Spawn-in poof: a few growing rings */
+@keyframes rpg-poof {
+  0% { transform: scale(0); opacity: 0.9; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+.rpg-poof-ring {
+  transform-box: fill-box;
+  transform-origin: center center;
+  animation: rpg-poof 700ms ease-out forwards;
+}
+
+/* Spawn scale-in */
+@keyframes rpg-spawn-in {
+  0% { opacity: 0; transform: scale(0); }
+  60% { opacity: 1; transform: scale(1.12); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.rpg-spawn-in {
+  animation: rpg-spawn-in 460ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* Tool ribbon pop (chunky border, slight bounce) */
+@keyframes rpg-ribbon-pop {
+  0% { opacity: 0; transform: translate(var(--tx, 0), calc(var(--ty, 0) + 6px)) scale(0.4); }
+  20% { opacity: 1; transform: translate(var(--tx, 0), var(--ty, 0)) scale(1.15); }
+  35% { transform: translate(var(--tx, 0), var(--ty, 0)) scale(0.95); }
+  50% { transform: translate(var(--tx, 0), var(--ty, 0)) scale(1.04); }
+  70% { transform: translate(var(--tx, 0), var(--ty, 0)) scale(1); opacity: 1; }
+  100% { transform: translate(var(--tx, 0), calc(var(--ty, 0) - 4px)) scale(1); opacity: 0; }
+}
+.rpg-ribbon {
+  animation: rpg-ribbon-pop 2000ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Particle fly with deg/dist vars (different from particle-fly so we keep both) */
+@keyframes rpg-particle-fly {
+  0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
+  20% { opacity: 1; }
+  100% {
+    transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1) rotate(180deg);
+    opacity: 0;
+  }
+}
+.rpg-particle {
+  animation: rpg-particle-fly 850ms ease-out forwards;
+}
+
+/* Thought bubble dot rotator */
+@keyframes rpg-think-dots {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+.rpg-think-dot-1 { animation: rpg-think-dots 1.2s ease-in-out 0s infinite; }
+.rpg-think-dot-2 { animation: rpg-think-dots 1.2s ease-in-out 0.2s infinite; }
+.rpg-think-dot-3 { animation: rpg-think-dots 1.2s ease-in-out 0.4s infinite; }
+
+/* Zzz drift for abandoned */
+@keyframes rpg-zzz-drift {
+  0% { transform: translate(0, 0) scale(0.7); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translate(8px, -14px) scale(1.1); opacity: 0; }
+}
+.rpg-zzz {
+  animation: rpg-zzz-drift 2.4s ease-out infinite;
+}
+
+/* Victory sparkle — small star pulse */
+@keyframes rpg-victory-sparkle {
+  0%, 100% { opacity: 0; transform: scale(0.4) rotate(0deg); }
+  50% { opacity: 1; transform: scale(1.1) rotate(45deg); }
+}
+.rpg-victory {
+  animation: rpg-victory-sparkle 1.6s ease-in-out infinite;
+}
+
+/* KO X pulse */
+@keyframes rpg-ko-pulse {
+  0%, 100% { opacity: 0.85; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+.rpg-ko {
+  animation: rpg-ko-pulse 1.4s ease-in-out infinite;
+}
+
+/* Banner sway for the leader */
+@keyframes rpg-banner-sway {
+  0%, 100% { transform: rotate(-2deg); }
+  50% { transform: rotate(3deg); }
+}
+.rpg-banner {
+  transform-origin: top center;
+  animation: rpg-banner-sway 3.2s ease-in-out infinite;
+}
+
+/* Crown shimmer for leader */
+@keyframes rpg-crown-shimmer {
+  0%, 100% { filter: drop-shadow(0 0 2px rgba(250, 204, 21, 0.6)); }
+  50% { filter: drop-shadow(0 0 6px rgba(250, 204, 21, 1)); }
+}
+.rpg-crown {
+  animation: rpg-crown-shimmer 2s ease-in-out infinite;
+}
+
+/* ============================================================
+ * Aquarium scene (aq- prefix)
+ * Calm, slow, ambient. Designed for "leave on the second monitor".
+ * ============================================================ */
+
+/* Tank background: deep teal/blue gradient. */
+.aq-tank {
+  background:
+    radial-gradient(ellipse at 50% 110%, rgba(8, 47, 73, 0.0) 0%, rgba(2, 6, 23, 0.95) 70%),
+    linear-gradient(
+      180deg,
+      #0c4a6e 0%,
+      #082f49 35%,
+      #0c1b30 75%,
+      #050a14 100%
+    );
+}
+
+/* Soft godrays from the top, slow drift. */
+.aq-godrays {
+  background:
+    radial-gradient(ellipse 60% 40% at 30% -10%, rgba(186, 230, 253, 0.10), transparent 60%),
+    radial-gradient(ellipse 40% 50% at 70% -10%, rgba(165, 243, 252, 0.08), transparent 60%),
+    radial-gradient(ellipse 30% 30% at 50% -10%, rgba(255, 255, 255, 0.06), transparent 60%);
+  mix-blend-mode: screen;
+  animation: aq-godray-drift 18s ease-in-out infinite alternate;
+}
+@keyframes aq-godray-drift {
+  0% { transform: translateX(-12px); opacity: 0.85; }
+  100% { transform: translateX(12px); opacity: 1; }
+}
+
+/* Ambient bubbles drifting up the whole tank. */
+.aq-ambient-bubble {
+  background: radial-gradient(circle at 35% 35%,
+    rgba(255, 255, 255, 0.85),
+    rgba(186, 230, 253, 0.35) 60%,
+    transparent 75%);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  opacity: 0.55;
+  animation-name: aq-ambient-rise;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform, opacity;
+}
+@keyframes aq-ambient-rise {
+  0%   { transform: translate(0, 0) scale(0.8); opacity: 0; }
+  10%  { opacity: 0.55; }
+  85%  { opacity: 0.55; }
+  100% { transform: translate(var(--aq-drift, 0), -110vh) scale(1); opacity: 0; }
+}
+
+/* Spawn-in for new creatures. */
+@keyframes aq-spawn-in {
+  0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.2); filter: blur(6px); }
+  60%  { opacity: 1; filter: blur(0); }
+  100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+.aq-spawn-in {
+  animation: aq-spawn-in 1.1s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Wandering loop — uses --aq-dx / --aq-dy from inline style. */
+@keyframes aq-wander {
+  0%   { transform: translate(0, 0); }
+  25%  { transform: translate(var(--aq-dx, 30px), calc(var(--aq-dy, 20px) * -0.6)); }
+  50%  { transform: translate(calc(var(--aq-dx, 30px) * 0.3), var(--aq-dy, 20px)); }
+  75%  { transform: translate(calc(var(--aq-dx, 30px) * -1), calc(var(--aq-dy, 20px) * -0.3)); }
+  100% { transform: translate(0, 0); }
+}
+.aq-wander {
+  animation-name: aq-wander;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  will-change: transform;
+}
+.aq-wander-slow {
+  animation-timing-function: ease-in-out;
+}
+
+/* Bobbing. Container scaleX may be applied; bob just translates. */
+@keyframes aq-bob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-4px); }
+}
+.aq-bob {
+  animation-name: aq-bob;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+/* Orchestrator drift. */
+@keyframes aq-jelly-drift {
+  0%   { transform: translate(-50%, -50%) translate(0, 0); }
+  25%  { transform: translate(-50%, -50%) translate(20px, -8px); }
+  50%  { transform: translate(-50%, -50%) translate(0, 8px); }
+  75%  { transform: translate(-50%, -50%) translate(-20px, -6px); }
+  100% { transform: translate(-50%, -50%) translate(0, 0); }
+}
+.aq-jelly-drift {
+  animation: aq-jelly-drift 24s ease-in-out infinite;
+}
+
+/* Bell bobs gently. */
+@keyframes aq-bell-bob {
+  0%, 100% { transform: translateY(0) scaleX(1) scaleY(1); }
+  50%      { transform: translateY(-3px) scaleX(1.02) scaleY(0.98); }
+}
+.aq-bell-bob {
+  animation: aq-bell-bob 4.5s ease-in-out infinite;
+  transform-origin: 50% 50%;
+}
+
+/* Tentacle wave — sway side-to-side. */
+@keyframes aq-tent-wave {
+  0%, 100% { transform: rotate(-3deg); }
+  50%      { transform: rotate(3deg); }
+}
+
+/* Bubble burst (tool fire). */
+@keyframes aq-burst {
+  0%   { transform: translate(-50%, -50%) scale(0.2); opacity: 0; }
+  20%  { opacity: 0.95; }
+  100% {
+    transform: translate(calc(-50% + var(--aq-bx, 0)), calc(-50% + var(--aq-by, 0))) scale(1);
+    opacity: 0;
+  }
+}
+.aq-burst {
+  animation: aq-burst 1.4s ease-out forwards;
+}
+
+/* Tool pop label. */
+@keyframes aq-tool-pop {
+  0%   { opacity: 0; transform: translateY(-50%) scale(0.7); }
+  20%  { opacity: 1; transform: translateY(-50%) scale(1); }
+  80%  { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-50%) scale(1); }
+}
+.aq-tool-pop {
+  animation: aq-tool-pop 1.6s ease-out forwards;
+}
+
+/* Failed creature: brief red flash overlay. */
+@keyframes aq-fail-flash {
+  0%, 100% { background: rgba(220, 38, 38, 0); }
+  50%      { background: rgba(220, 38, 38, 0.25); }
+}
+.aq-fail-flash {
+  animation: aq-fail-flash 1.6s ease-in-out infinite;
+}
+.aq-tint-fail {
+  filter: saturate(0.7) hue-rotate(-30deg);
+}
+
+/* Abandoned: slowly drift toward the bottom of the tank. */
+@keyframes aq-sink {
+  0%   { transform: translate(-50%, -50%) translateY(0); opacity: 0.4; }
+  100% { transform: translate(-50%, -50%) translateY(40vh); opacity: 0.1; }
+}
+.aq-sink {
+  animation: aq-sink 90s linear forwards;
+}

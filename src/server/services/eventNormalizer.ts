@@ -2,6 +2,7 @@ import { nanoid } from "nanoid";
 import type {
   AgentEvent,
   AgentEventType,
+  AgentKind,
   AgentToolStatus,
 } from "../../shared/events.ts";
 
@@ -23,20 +24,31 @@ const HOOK_TO_TYPE: Record<string, AgentEventType> = {
   PreToolUse: "tool_started",
   PostToolUse: "tool_completed",
   Notification: "notification",
+  PermissionRequest: "notification",
   PreCompact: "notification",
 };
 
-export function normalizeHookPayload(raw: unknown): NormalizedHookEvent {
+export function normalizeHookPayload(
+  raw: unknown,
+  agent: AgentKind = "claude-code",
+): NormalizedHookEvent {
   const obj = isObj(raw) ? raw : {};
-  const hookEventName = str(obj.hook_event_name) || "Unknown";
+  const hookEventName =
+    str(obj.hook_event_name) || str(obj.hookEventName) || "Unknown";
   const sessionId =
     str(obj.session_id) || str(obj.sessionId) || `nosess_${nanoid(8)}`;
   const cwd = str(obj.cwd);
-  const toolUseId = str(obj.tool_use_id) || str(obj.toolUseId);
+  const toolUseId =
+    str(obj.tool_use_id) ||
+    str(obj.toolUseId) ||
+    str(obj.tool_call_id) ||
+    str(obj.toolCallId);
   const toolName = str(obj.tool_name) || str(obj.toolName);
-  const input = obj.tool_input ?? obj.input;
-  const output = obj.tool_response ?? obj.output;
+  const input = obj.tool_input ?? obj.toolInput ?? obj.input;
+  const output = obj.tool_response ?? obj.toolResponse ?? obj.output;
   const prompt = str(obj.prompt);
+  const agentId = str(obj.agent_id) || str(obj.agentId);
+  const agentType = str(obj.agent_type) || str(obj.agentType);
 
   let eventType: AgentEventType = HOOK_TO_TYPE[hookEventName] ?? "unknown";
   let status: AgentToolStatus | undefined;
@@ -85,7 +97,8 @@ export function normalizeHookPayload(raw: unknown): NormalizedHookEvent {
     }
     case "Stop":
     case "SubagentStop": {
-      const last = str(obj.last_assistant_message);
+      const last =
+        str(obj.last_assistant_message) ?? str(obj.lastAssistantMessage);
       title = hookEventName === "Stop" ? "Session ended" : "Subagent ended";
       summary = last?.slice(0, 240);
       break;
@@ -93,6 +106,14 @@ export function normalizeHookPayload(raw: unknown): NormalizedHookEvent {
     case "Notification": {
       title = "Notification";
       summary = str(obj.message) ?? str(obj.title);
+      break;
+    }
+    case "PermissionRequest": {
+      title = "Permission request";
+      summary =
+        str(obj.message) ??
+        str(obj.title) ??
+        (toolName ? `Permission for ${toolName}` : undefined);
       break;
     }
     case "PreCompact": {
@@ -105,7 +126,7 @@ export function normalizeHookPayload(raw: unknown): NormalizedHookEvent {
   return {
     sessionId,
     timestamp: new Date().toISOString(),
-    source: "claude-code",
+    source: agent,
     hookEventName,
     eventType,
     toolUseId,
@@ -118,6 +139,8 @@ export function normalizeHookPayload(raw: unknown): NormalizedHookEvent {
     error,
     cwd,
     prompt,
+    agentId,
+    agentType,
     raw,
   };
 }

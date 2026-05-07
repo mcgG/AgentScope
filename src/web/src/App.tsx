@@ -4,6 +4,14 @@ import { fetchEvents, fetchSessions } from "./api.ts";
 import { SessionSidebar } from "./components/SessionSidebar.tsx";
 import { SessionHeader } from "./components/SessionHeader.tsx";
 import { Timeline } from "./components/Timeline.tsx";
+import { GraphView } from "./components/GraphView.tsx";
+import { Dashboard } from "./components/Dashboard.tsx";
+import { PlaygroundView } from "./components/PlaygroundView.tsx";
+import type { AgentFilter, AgentKind } from "./agentMeta.ts";
+
+type ViewMode = "timeline" | "graph" | "playground";
+
+const RECENT_EVENT_CAP = 200;
 
 type EventsBySession = Record<string, AgentEvent[]>;
 
@@ -36,12 +44,51 @@ function upsertEvent(list: AgentEvent[], next: AgentEvent): AgentEvent[] {
   return [...list, next];
 }
 
+function ViewToggle({
+  mode,
+  onChange,
+}: {
+  mode: ViewMode;
+  onChange: (m: ViewMode) => void;
+}) {
+  const options: { key: ViewMode; label: string }[] = [
+    { key: "timeline", label: "Timeline" },
+    { key: "graph", label: "Graph" },
+    { key: "playground", label: "Playground" },
+  ];
+  return (
+    <div className="inline-flex items-center rounded-md bg-zinc-900/60 border border-zinc-800 p-0.5">
+      {options.map((opt) => {
+        const active = mode === opt.key;
+        return (
+          <button
+            key={opt.key}
+            type="button"
+            onClick={() => onChange(opt.key)}
+            className={
+              "px-2.5 py-0.5 text-[11px] font-medium rounded transition-colors " +
+              (active
+                ? "bg-zinc-700/60 text-zinc-100"
+                : "text-zinc-400 hover:text-zinc-200")
+            }
+          >
+            {opt.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function App() {
   const [sessions, setSessions] = useState<AgentSession[]>([]);
   const [eventsBySession, setEventsBySession] = useState<EventsBySession>({});
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [connected, setConnected] = useState(false);
-  const [autoScroll, setAutoScroll] = useState(true);
+  const [agentFilter, setAgentFilter] = useState<AgentFilter>("all");
+  const [viewMode, setViewMode] = useState<ViewMode>("timeline");
+  const [showDashboard, setShowDashboard] = useState(true);
+  const [recentEvents, setRecentEvents] = useState<AgentEvent[]>([]);
   const userSelectedRef = useRef(false);
 
   // Initial sessions load
@@ -58,16 +105,27 @@ export default function App() {
       });
   }, []);
 
-  // Load events when selection changes (if not already cached)
+  // Load events when selection changes. Always re-fetch authoritative state
+  // from the server (SSE only delivers deltas during the user's session and may
+  // have missed events while another session was selected).
   useEffect(() => {
     if (!selectedId) return;
-    if (eventsBySession[selectedId]) return;
     fetchEvents(selectedId)
       .then((events) => {
-        setEventsBySession((prev) => ({ ...prev, [selectedId]: events }));
+        setEventsBySession((prev) => {
+          const existing = prev[selectedId] ?? [];
+          if (events.length >= existing.length) return { ...prev, [selectedId]: events };
+          // Server somehow has fewer events than we cached; merge to be safe.
+          const byId = new Map(existing.map((e) => [e.id, e]));
+          for (const e of events) byId.set(e.id, e);
+          const merged = Array.from(byId.values()).sort((a, b) =>
+            a.timestamp.localeCompare(b.timestamp),
+          );
+          return { ...prev, [selectedId]: merged };
+        });
       })
       .catch(() => {});
-  }, [selectedId, eventsBySession]);
+  }, [selectedId]);
 
   // SSE subscription
   useEffect(() => {
@@ -97,6 +155,12 @@ export default function App() {
             ...prev,
             [event.sessionId]: upsertEvent(prev[event.sessionId] ?? [], event),
           }));
+          setRecentEvents((prev) => {
+            const next = upsertEvent(prev, event);
+            return next.length > RECENT_EVENT_CAP
+              ? next.slice(next.length - RECENT_EVENT_CAP)
+              : next;
+          });
         } catch {}
       });
       es.onerror = () => {
@@ -118,7 +182,29 @@ export default function App() {
   const selectSession = useCallback((id: string) => {
     userSelectedRef.current = true;
     setSelectedId(id);
+    setShowDashboard(false);
   }, []);
+
+  const showLiveDashboard = useCallback(() => {
+    setShowDashboard(true);
+  }, []);
+
+  const handleAgentFilterChange = useCallback(
+    (next: AgentFilter) => {
+      setAgentFilter(next);
+      const visible =
+        next === "all"
+          ? sessions
+          : sessions.filter((s) => (s.agent as AgentKind) === next);
+      const stillVisible =
+        selectedId != null && visible.some((s) => s.id === selectedId);
+      if (!stillVisible) {
+        userSelectedRef.current = false;
+        setSelectedId(visible.length > 0 ? visible[0]!.id : null);
+      }
+    },
+    [sessions, selectedId],
+  );
 
   const selectedSession = useMemo(
     () => sessions.find((s) => s.id === selectedId) ?? null,
@@ -130,29 +216,35 @@ export default function App() {
     <div className="flex h-full">
       <SessionSidebar
         sessions={sessions}
-        selectedId={selectedId}
+        selectedId={showDashboard ? null : selectedId}
         onSelect={selectSession}
         connected={connected}
+        agentFilter={agentFilter}
+        onAgentFilterChange={handleAgentFilterChange}
+        dashboardActive={showDashboard}
+        onShowDashboard={showLiveDashboard}
       />
       <main className="flex-1 flex flex-col min-w-0 bg-zinc-950">
-        {selectedSession ? (
+        {showDashboard ? (
+          <Dashboard
+            sessions={sessions}
+            recentEvents={recentEvents}
+            onSelect={selectSession}
+          />
+        ) : selectedSession ? (
           <>
             <SessionHeader session={selectedSession} />
             <div className="flex items-center gap-4 px-6 py-2 border-b border-zinc-800/60 text-[11px] text-zinc-500">
-              <label className="flex items-center gap-1.5 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={autoScroll}
-                  onChange={(e) => setAutoScroll(e.target.checked)}
-                  className="size-3 accent-blue-500"
-                />
-                Auto-scroll
-              </label>
+              <ViewToggle mode={viewMode} onChange={setViewMode} />
               <span className="ml-auto font-mono">id: {selectedSession.id.slice(0, 8)}</span>
             </div>
-            <div className="flex-1 overflow-auto">
-              <Timeline events={selectedEvents} autoScroll={autoScroll} />
-            </div>
+            {viewMode === "timeline" ? (
+              <Timeline events={selectedEvents} />
+            ) : viewMode === "graph" ? (
+              <GraphView events={selectedEvents} />
+            ) : (
+              <PlaygroundView events={selectedEvents} session={selectedSession} />
+            )}
           </>
         ) : (
           <div className="flex-1 flex items-center justify-center text-zinc-500">

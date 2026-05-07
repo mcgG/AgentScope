@@ -6,7 +6,10 @@ import { hookRoutes } from "./routes/hooks.ts";
 import { sessionRoutes } from "./routes/sessions.ts";
 import { streamRoutes } from "./routes/stream.ts";
 import { healthRoutes } from "./routes/health.ts";
+import { usageRoutes } from "./routes/usage.ts";
 import { sessionStore } from "./services/sessionStore.ts";
+import { usageStore } from "./services/usageStore.ts";
+import { eventBus } from "./services/eventBus.ts";
 
 const PORT = Number(process.env.AGENTSCOPE_PORT ?? 4936);
 const HOST = process.env.AGENTSCOPE_HOST ?? "127.0.0.1";
@@ -19,10 +22,26 @@ const app = Fastify({
 });
 
 await sessionStore.init();
+await usageStore.init();
+// Refresh a session's usage shortly after we receive a new event for it.
+let pendingRefresh = new Set<string>();
+let refreshTimer: NodeJS.Timeout | undefined;
+eventBus.on("event_upserted", (e) => {
+  pendingRefresh.add(e.sessionId);
+  if (refreshTimer) return;
+  refreshTimer = setTimeout(() => {
+    const ids = Array.from(pendingRefresh);
+    pendingRefresh = new Set();
+    refreshTimer = undefined;
+    Promise.all(ids.map((id) => usageStore.refreshSession(id).catch(() => {})));
+  }, 1500);
+  (refreshTimer as { unref?: () => void }).unref?.();
+});
 await app.register(healthRoutes);
 await app.register(hookRoutes);
 await app.register(sessionRoutes);
 await app.register(streamRoutes);
+await app.register(usageRoutes);
 
 const distDir = resolve(process.cwd(), "dist/web");
 if (existsSync(distDir)) {
@@ -37,7 +56,8 @@ if (existsSync(distDir)) {
 
 app.listen({ port: PORT, host: HOST }).then(() => {
   console.log(`\n🛰  AgentScope on http://${HOST}:${PORT}`);
-  console.log(`    hook endpoint:  POST /api/hooks/claude`);
+  console.log(`    hook endpoints: POST /api/hooks/claude`);
+  console.log(`                    POST /api/hooks/codex`);
   console.log(`    sessions API:   GET  /api/sessions`);
   console.log(`    event stream:   GET  /api/events/stream`);
   if (existsSync(distDir)) {
