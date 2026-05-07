@@ -28,9 +28,18 @@ const HOOK_TO_TYPE: Record<string, AgentEventType> = {
   PreCompact: "notification",
 };
 
+function inferAgentKind(raw: unknown): AgentKind {
+  if (!isObj(raw)) return "claude-code";
+  const explicit = str(raw.agent) ?? str(raw.source_agent);
+  if (explicit === "codex" || explicit === "claude-code") return explicit;
+  const transcriptPath = str(raw.transcript_path) ?? str(raw.transcriptPath);
+  if (transcriptPath?.includes("/.codex/")) return "codex";
+  return "claude-code";
+}
+
 export function normalizeHookPayload(
   raw: unknown,
-  agent: AgentKind = "claude-code",
+  agent: AgentKind = inferAgentKind(raw),
 ): NormalizedHookEvent {
   const obj = isObj(raw) ? raw : {};
   const hookEventName =
